@@ -1,6 +1,5 @@
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization;
-
   if (!token || token !== process.env.BEARER_TOKEN) {
     return res.status(401).json({
       timestamp: new Date().toISOString(),
@@ -10,7 +9,6 @@ const authenticateToken = (req, res, next) => {
       data: [{ error: 'Invalid or missing Bearer Token' }]
     });
   }
-
   next();
 };
 
