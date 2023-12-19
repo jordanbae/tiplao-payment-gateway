@@ -1,20 +1,17 @@
 require('dotenv').config();
 const express = require("express");
-const bodyParser = require('body-parser');
-const authenticationRoutes = require('./routes/authenticate.route');
 const expressConfig = require('./config/express.config');
-
 const app = express();
 
-app.use(bodyParser.json());
+//Routes defining
+const router = require('./routes/index');
 
 // Apply Express.js configurations or middlewares
 expressConfig(app);
 
-// Apply route definitions
-app.use('/api/uat/dynamic', authenticationRoutes);
+app.use('/api/uat/dynamic', router);
 
 
-app.listen(() => {
+app.listen(process.env.PORT,() => {
     console.log(`Server running at ${process.env.HOST_NAME}:${process.env.PORT}`)
 })

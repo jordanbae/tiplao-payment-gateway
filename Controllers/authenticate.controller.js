@@ -1,61 +1,51 @@
 require('dotenv').config();
 const axios = require('axios');
+const generateQrController = require('./generateQr.controller'); // Import the generateQr controller
 
 exports.authenticate = async (req, res) => {
-    try {
-        // Extract request parameters
-        const { requestId, partnerId, clientId, clientSecret } = req.body;
-
-        // Perform additional validations (length, uniqueness, etc.)
-
-        // Construct the request to the bank's API
-        const bankApiUrl = `${process.env.JDB_URL_UAT}/authenticate`;
-        const bankApiRequest = {
-            requestId,
-            partnerId,
-            clientId,
-            clientSecret,
-        };
-
-        // Construct the headers for the request
-        const bnkaApiHeaders = {
-            'Content-Type': 'application/json',
-            // Include the Bearer token obtained during authentication
-            'Authorization': 'Bearer',
-            // Include the signed hash data key
-            'SignedHash': 'Hash Data',
-        };
-
-        // Send the request to the bank's API with headers
-        const bankApiResponse = await axios.post(bankApiUrl, bankApiRequest, { headers: bnkaApiHeaders });
-
-        // Handle the response from the bank's API
-        const { data: bankApiData } = bankApiResponse;
-
-        // Construct the response format for your application
-        const responseFormat = {
-            timestamp: new Date().toISOString(),
-            success: true,
-            message: 'Authentication successful',
-            transactionId: requestId,
-            status: 'OK',
-            data: bankApiData.data, // Assuming the data field from the bank's API response is an array object
-        };
-
-        // Pass the formatted response back to the application
-        res.json(responseFormat);
-    } catch (error) {
-        console.error(error);
-
-        // Handle errors based on the response format from the bank's API
-        const errorResponseFormat = {
-            timestamp: new Date().toISOString(),
-            success: false,
-            status: 'Error',
-            message: 'Error occurred during authentication',
-            data: error.response ? error.response.data : null,
-        };
-        // Send the error response back to the application
-        res.status(error.response ? error.response.status : 500).json(errorResponseFormat);
+  try {
+    // Validate the request body
+    const { requestId } = req.body;
+    console.log(requestId);
+    if (!requestId || typeof requestId !== 'string' || requestId.length > 25) {
+      return res.status(400).json({ error: 'Gateway: Invalid requestId. It should be a string up to 25 characters.' });
     }
+
+    // Read environment variables
+    const partnerId = process.env.PARTNER_ID;
+    const clientId = process.env.CLIENT_ID;
+    const clientSecret = process.env.CLIENT_SECRET;
+
+    // Validate environment variables
+    if (!partnerId || typeof partnerId !== 'string' || partnerId.length > 10 ||
+      !clientId || typeof clientId !== 'string' || clientId.length > 10 ||
+      !clientSecret || typeof clientSecret !== 'string') {
+      return res.status(500).json({ error: 'Gateway: Internal server error. Invalid environment variables.' });
+    }
+
+    // Prepare the request body
+    const requestBody = {
+      requestId,
+      partnerId,
+      clientId,
+      clientSecret,
+    };
+
+    // Make a request to the API
+    const authenticateUrl = process.env.AUTHENTICATE_URL;
+    const response = await axios.post(authenticateUrl, requestBody);
+    
+    // Handle the API response
+    if (response.status === 200 && response.data.success) {
+      // Pass the access token to the generateQrController
+      const accessToken = response.data.data.accessToken;
+      await generateQrController.generateQr(req, res, accessToken);
+    } else {
+      return res.status(response.status).json(response.data);
+    }
+  } catch (error) {
+    // Handle errors
+    console.error('Error in authentication:', error);
+    return res.status(500).json({ error: 'Gateway: Internal server error from gateway.' });
+  }
 };
