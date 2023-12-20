@@ -1,11 +1,16 @@
 require('dotenv').config();
 const axios = require('axios');
+const uuidGenerator = require('../services/uuidGenerator.service');
+const generateHash = require('../services/hashGenerator.service');
+
 
 // Controller function for the checkTransaction endpoint
 exports.checkTransaction = async (req, res, accessToken) => {
   try {
+    //Generate requestId
+    const requestId = uuidGenerator.generateUuid();
     // Extract data from the request body
-    const { requestId, billNumber } = req.body;
+    const billNumber = req.body.billNumber;
 
     // Validate request parameters
     if (!requestId || typeof requestId !== 'string' || requestId.length > 25) {
@@ -16,20 +21,27 @@ exports.checkTransaction = async (req, res, accessToken) => {
       return res.status(400).json({ error: 'Invalid billNumber. It should be a string up to 25 characters.' });
     }
 
+    const checkTransactionRequestBody = {
+      requestId: requestId,
+      billNumber, billNumber
+    }
+
+    //Hashing request body
+    const signedHash = generateHash(checkTransactionRequestBody)
+
     // Prepare the headers with the access token
     const checkTransactionConfig = {
       headers: {
-        Authorization: accessToken,
         'Content-Type': 'application/json',
+        Authorization: accessToken,
+        'SignedHash': signedHash,
       },
     };
 
     // Make a request to the checkTransaction API (replace the URL with your actual API endpoint)
     const checkTransactionUrl = process.env.CHECKTRANSACTION_URL;
-    const response = await axios.post(apiUrl, { requestId, billNumber });
+    const response = await axios.post(checkTransactionUrl, checkTransactionRequestBody, checkTransactionConfig);
     
-    
-
     // Handle the API response
     return res.status(response.status).json(response.data);
   } catch (error) {

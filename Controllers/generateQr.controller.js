@@ -1,31 +1,48 @@
+require('dotenv').config();
 const axios = require('axios');
-
-exports.generateQr = async (req, res, accessToken) => {
+const generateHash = require('../services/hashGenerator.service');
+const uuidGenerator = require('../services/uuidGenerator.service');
+exports.generateQr = async (req, res, accessToken, qrRequestBody) => {
   try {
     // Ensure that the access token is present
     if (!accessToken) {
       return res.status(401).json({ error: 'Unauthorized', message: 'Access token is missing in the request headers.' });
     }
+    //Generate requestId
+    const requestId = uuidGenerator.generateUuid();
 
-    const request = req.body;
-    console.log("request in generateQr ----> ", request);
+    // Read environment variables
+    const partnerId = process.env.PARTNER_ID;
+    const merchantId = process.env.MERCHANT_ID
+    
+    //Exracted qrRequestBody Object
+    const txnAmount = qrRequestBody.txnAmount;
+    const billNumber = qrRequestBody.billNumber;
+    const terminalId = qrRequestBody.terminalId;
+    const terminalLabel = qrRequestBody.terminalLabel;
+    const mobileNo = qrRequestBody.mobileNo;
+
+
     // Prepare the request body for generateQr
     const generateQrRequestBody = {
-      requestId: '2022110314567895',
-      partnerId: 'LITD',
-      mechantId: 'UIDDRPYBW7IZTTF0ET65ES3BG',
-      txnAmount: 20000,
-      billNumber: 'JDB547885467',
-      terminalId: '121312121',
-      terminalLabel: 'JDB000006',
-      mobileNo: '2077004545',
+      requestId: requestId,
+      partnerId: partnerId,
+      mechantId: merchantId,
+      txnAmount: txnAmount,
+      billNumber: billNumber, 
+      terminalId: terminalId, 
+      terminalLabel: terminalLabel, 
+      mobileNo: mobileNo, 
     };
+    //Hashing request body
+    const signedHash = generateHash(generateQrRequestBody);
 
     // Prepare the headers with the access token
     const generateQrRequestConfig = {
       headers: {
-        Authorization: accessToken,
         'Content-Type': 'application/json',
+        Authorization: accessToken,
+        'SignedHash': signedHash,
       },
     };
 
