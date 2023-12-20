@@ -7,6 +7,8 @@ exports.generateQr = async (req, res, accessToken) => {
       return res.status(401).json({ error: 'Unauthorized', message: 'Access token is missing in the request headers.' });
     }
 
+    const request = req.body;
+    console.log("request in generateQr ----> ", request);
     // Prepare the request body for generateQr
     const generateQrRequestBody = {
       requestId: '2022110314567895',

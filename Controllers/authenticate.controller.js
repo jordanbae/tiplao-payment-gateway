@@ -37,7 +37,8 @@ exports.authenticate = async (req, res) => {
     
     // Handle the API response
     if (response.status === 200 && response.data.success) {
-      // Pass the access token to the generateQrController
+      // Pass the response from bankapi to gateway generateQr controller
+      // const authenticateResponse = 
       const accessToken = response.data.data.accessToken;
       await generateQrController.generateQr(req, res, accessToken);
     } else {
