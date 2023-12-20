@@ -7,5 +7,5 @@ module.exports = (app) => {
     // Add any global middleware or configurations here
     app.use(bodyParser.json());
     app.use(loggerMiddleware);
-    app.use(whitelistedIp);
+    // app.use(whitelistedIp);
 };
