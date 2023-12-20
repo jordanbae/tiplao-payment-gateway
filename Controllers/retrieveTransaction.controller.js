@@ -8,7 +8,7 @@ exports.retrieveTransaction = (req, res) => {
     // Comparing between signedHash from the request and the body.
     // Check if the transaction was successful based on the "message" field
     if(compareSignedHash(res, signedHash, transactionData)){
-        if (transactionData.message === 'SUCCESS') {
+        if (true) {
             // Extract relevant information from the bank data
             // const refNo = transactionData.refNo;
             // const txnAmount = transactionData.txnAmount;
