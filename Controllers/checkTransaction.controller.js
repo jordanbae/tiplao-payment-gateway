@@ -1,7 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
-const uuidGenerator = require('../services/uuidGenerator.service');
-const generateHash = require('../services/hashGenerator.service');
+const uuidGenerator = require('../utils/uuidGenerator.util');
+const generateHash = require('../utils/hashGenerator.util');
 
 
 // Controller function for the checkTransaction endpoint

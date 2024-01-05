@@ -1,10 +1,10 @@
 require('dotenv').config();
 const axios = require('axios');
 const generateQrController = require('./generateQr.controller'); // Import the generateQr controller
-const uuidGenerator = require('../services/uuidGenerator.service');
-const validateFeebaseReqBody = require('../services/validateFeebaseReqBody.service')
-const hashGenerator = require('../services/hashGenerator.service');
-const generateHash = require('../services/hashGenerator.service');
+const uuidGenerator = require('../utils/uuidGenerator.util');
+const validateFeebaseReqBody = require('../utils/validateFeebaseReqBody.util')
+const hashGenerator = require('../utils/hashGenerator.util');
+const generateHash = require('../utils/hashGenerator.util');
 
 exports.authenticate = async (req, res) => {
   try {

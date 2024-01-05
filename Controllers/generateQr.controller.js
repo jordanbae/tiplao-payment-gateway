@@ -1,7 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
-const generateHash = require('../services/hashGenerator.service');
-const uuidGenerator = require('../services/uuidGenerator.service');
+const generateHash = require('../utils/hashGenerator.util');
+const uuidGenerator = require('../utils/uuidGenerator.util');
 exports.generateQr = async (req, res, accessToken, qrRequestBody) => {
   try {
     // Ensure that the access token is present

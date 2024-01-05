@@ -1,5 +1,5 @@
 const axios = require('axios');
-const generateHash = require('../services/hashGenerator.service');
+const generateHash = require('../utils/hashGenerator.util');
 exports.retrieveTransaction = (req, res) => {
     // Extract the signedHash from the headers
     const signedHash = req.headers['signedhash'];
